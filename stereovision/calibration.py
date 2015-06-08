@@ -27,7 +27,7 @@ Classes:
 """
 
 import os
-
+import yaml
 import cv2
 
 import numpy as np
@@ -67,16 +67,21 @@ class StereoCalibration(object):
         for key, item in self.__dict__.items():
             if isinstance(item, dict):
                 for side in ("left", "right"):
-                    filename = os.path.join(output_folder,
-                                            "{}_{}.npy".format(key, side))
+#                    filename = os.path.join(output_folder, "{}_{}.npy".format(key, side))
+                    filename = os.path.join(output_folder, "{}_{}.yml".format(key, side))
                     if action == 'w':
-                        np.save(filename, self.__dict__[key][side])
+#                        np.save(filename, self.__dict__[key][side])
+                        with open(filename, 'w') as f:
+                            yaml.dump(self.__dict__[key][side].tolist(), f)
                     else:
                         self.__dict__[key][side] = np.load(filename)
             else:
-                filename = os.path.join(output_folder, "{}.npy".format(key))
+#                filename = os.path.join(output_folder, "{}.npy".format(key))
+                filename = os.path.join(output_folder, "{}.yml".format(key))
                 if action == 'w':
-                    np.save(filename, self.__dict__[key])
+#                    np.save(filename, self.__dict__[key])
+                    with open(filename, 'w') as f:
+                        yaml.dump(self.__dict__[key].tolist(), f)
                 else:
                     self.__dict__[key] = np.load(filename)
 
