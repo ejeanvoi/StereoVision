@@ -100,7 +100,7 @@ def calibrate_folder(args):
     while args.input_files:
         left, right = args.input_files[:2]
         img_left, im_right = cv2.imread(left), cv2.imread(right)
-        calibrator.add_corners((img_left, im_right),
+        calibrator.add_corners((img_left, im_right),left,right,
                                show_results=args.show_chessboards)
         args.input_files = args.input_files[2:]
         progress.update(progress.maxval - len(args.input_files))

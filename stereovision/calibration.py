@@ -147,7 +147,9 @@ class StereoCalibrator(object):
         ret, corners = cv2.findChessboardCorners(temp,
                                                  (self.rows, self.columns))
         if not ret:
-            raise ChessboardNotFoundError("No chessboard could be found.")
+            print ChessboardNotFoundError("No chessboard could be found.")
+            return False
+
         cv2.cornerSubPix(temp, corners, (11, 11), (-1, -1),
                          (cv2.TERM_CRITERIA_MAX_ITER + cv2.TERM_CRITERIA_EPS,
                           30, 0.01))
@@ -193,7 +195,7 @@ class StereoCalibrator(object):
         #: and right camera, respectively
         self.image_points = {"left": [], "right": []}
 
-    def add_corners(self, image_pair, show_results=False):
+    def add_corners(self, image_pair, left, right, show_results=False):
         """
         Record chessboard corners found in an image pair.
 
@@ -204,11 +206,20 @@ class StereoCalibrator(object):
         self.object_points.append(self.corner_coordinates)
         for image in image_pair:
             corners = self._get_corners(image)
-            if show_results:
-                self._show_corners(image, corners)
-            self.image_points[side].append(corners.reshape(-1, 2))
-            side = "right"
-            self.image_count += 1
+            if type(corners) == bool:
+                print "Dropping",left,"and",right
+                self.object_points.pop()
+                if side == "right":
+                    self.image_points["left"].pop()
+                    self.image_count -= 1
+                else:
+                    break
+            else:
+                if show_results:
+                    self._show_corners(image, corners)
+                self.image_points[side].append(corners.reshape(-1, 2))
+                side = "right"
+                self.image_count += 1
 
     def calibrate_cameras(self):
         """Calibrate cameras based on found chessboard corners."""
